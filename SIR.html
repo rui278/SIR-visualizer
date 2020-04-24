@@ -13,175 +13,233 @@
 <p id="SIR"></p>
 <canvas id="myChart"></canvas>
 
-<script>
-		
-	//let N = ((PopulationSize === undefined) ? 100 : PopulationSize);
-	let N=10000000
 
-	//let beta = ((betaVal === undefined) ? 1.5 : betaVal);//infection probability modifier per cycle
-	let beta=0.25
-
-	//let gamma = ((gammaVal === undefined) ? 1.5 : gammaVal);//recovery probabilty modifier per cicle
-	let gamma=(1/21)
-
-	//let Days = ((DaysToSimulate === undefined) ? 100 : DaysToSimulate);
-	let Days = 300
-
-	//let StartingIPercentage = ((StartingInfectionPercentage === undefined) ? 0.05 : StartingInfectionPercentage);
-	let StartingIPercentage = 0.00005
-
-	let deathRate = 0.3
-
-	let S=N*(1-StartingIPercentage);
-	let I=StartingIPercentage*N;
-	let R=0;
-
-	let	Output = new Array(3);
-
-	let dailyS = new Array();
-	let dailyI = new Array();
-	let dailyR = new Array();
-	let deaths = new Array();
-	let totalInfections = new Array();
-
-	let categorias = new Array();
-
-	for (let i=0; i<Days; i++){
-		
-
-		
-
-
-		let infectionProbability = beta*(I/N);
-		let recoveryProbability = gamma;
-
-		let STemp=S-(infectionProbability*S);
-		if (STemp<1){
-			STemp=0;
-		};
-		
-		let ITemp=I+(infectionProbability*S)-(recoveryProbability*I);
-		if (ITemp < 1){
-			ITemp = 0;
-		}
-
-		if(i>0){
-			totalInfections[i]=infectionProbability*S+totalInfections[i-1];
-		}else{
-			totalInfections[i]=infectionProbability*S;
-		}
-
-		let RTemp=R+(recoveryProbability*I);
-		if (RTemp<1){
-			RTemp=0;
-		}
-
-		
-		let DeathsTemp=R*deathRate
-
-
-		let	NTemp=S+R+I
-
-		
-		S=STemp;
-		dailyS[i]=STemp;
-		I=ITemp;
-		dailyI[i]=ITemp;
-		R=RTemp;
-		dailyR[i]=RTemp;
-		deaths[i]=DeathsTemp;
-		categorias[i]=i;
-
-		
-	}
-
-
-	let SIRoutput = [];
-	SIRoutput[0]=dailyS;
-	SIRoutput[1]=dailyI;
-	SIRoutput[2]=dailyR;
-	SIRoutput[3]=deaths;
-	SIRoutput[4]=totalInfections;
+<div>
 	
-	console.log(dailyI)
-	console.log(categorias)
+	<input id="SIR_button" type="button" value="Run SIR Model" onclick="doFunction();" /><br><br>
+
+	Total population (#): <input id="total_population" type="text" name="Starting Infected Percentage"><br><br>
+	Starting infected population (#) (beta): <input id="StartingIPercentage_field" type="text" name="Starting Infected Percentage"><br><br>
+	Recovery rate (gamma): <input id="gamma_field" type="text" name="Gamma field"><br><br>
+	Individual Infection probability (beta): <input id="beta_field" type="text" name="Beta field"><br><br>
+	Infection Death rate: <input id="deathRate_field" type="text" name="Death Rate"><br><br>
+	<script type="text/javascript">
+			let input = document.getElementById('total_population')
+			input.defaultValue = "10000000"
+
+			input = document.getElementById('StartingIPercentage_field')
+			input.defaultValue = 10000000*0.00005
+			
+			input = document.getElementById('gamma_field')
+			input.defaultValue = 1/20
+
+			input = document.getElementById('beta_field')
+			input.defaultValue = "0.25"
+
+			input = document.getElementById('deathRate_field')
+			input.defaultValue = "0.3"
+	
+	</script>
 
 
-	lineChartData = {}; //declare an object
-	lineChartData.labels = []; //add 'labels' element to object (X axis)
-	lineChartData.datasets = []; //add 'datasets' array element to object
+</div>
 
-	for(let line = 0; line < 5; line++){
+<div>
+	<script type="text/javascript">
+			
+		function doFunction(){
+			//let N = ((PopulationSize === undefined) ? 100 : PopulationSize);
+			
+			let N=10000000
+			
+			let input = document.getElementById('total_population').value
+			if (input!=""){
+				N=input;
+			}
 
-	    lineChartData.datasets.push({}); //create a new line dataset
-        
-        dataset = lineChartData.datasets[line]
-		    	
-		switch(line) {
-			case 0: 
-				dataset.borderColor = "rgba(200,0,0,1)";
-				dataset.backgroundColor = "rgba(0, 0, 0, 0)";
-				dataset.label = "Susceptible"
-				dataset.pointBackgroundColor = "rgba(0, 0, 0, 0)";
-				dataset.pointBorderColor= "rgba(0, 0, 0, 0)";
-				break;
-			case 1:
-				dataset.borderColor = "rgba(0,200,0,1)";
-				dataset.backgroundColor = "rgba(0, 0, 0, 0)";
-				dataset.label = "Infected"
-				dataset.pointBackgroundColor = "rgba(0, 0, 0, 0)";
-				dataset.pointBorderColor= "rgba(0, 0, 0, 0)";
-				break;
-			case 2:
-				dataset.borderColor = "rgba(0,0,200,1)";
-				dataset.backgroundColor = "rgba(0, 0, 0, 0)";
-				dataset.label = "Removed"
-				dataset.pointBackgroundColor = "rgba(0, 0, 0, 0)";
-				dataset.pointBorderColor= "rgba(0, 0, 0, 0)";
-				break;
-			case 3:
-				dataset.borderColor = "rgba(0,0,0,1)";
-				dataset.backgroundColor = "rgba(0, 0, 0, 0)";
-				dataset.label = "Deaths"
-				dataset.pointBackgroundColor = "rgba(0, 0, 0, 0)";
-				dataset.pointBorderColor= "rgba(0, 0, 0, 0)";
-				break;
-			case 4:
-				dataset.borderColor = "rgba(200,200,200,1)";
-				dataset.backgroundColor = "rgba(0, 0, 0, 0)";
-				dataset.label = "Total Infections"
-				dataset.pointBackgroundColor = "rgba(0, 0, 0, 0)";
-				dataset.pointBorderColor= "rgba(0, 0, 0, 0)";
-				break;
+			//let beta = ((betaVal === undefined) ? 1.5 : betaVal);//infection probability modifier per cycle
+			let beta=0.25
 
+			input = document.getElementById('beta_field').value
+			if (input!=""){
+				beta=input;
+			}
+			//let gamma = ((gammaVal === undefined) ? 1.5 : gammaVal);//recovery probabilty modifier per cicle
+			let gamma=(1/21)
+
+			input = document.getElementById('gamma_field').value
+			if (input!=""){
+				gamma=input;
+			}
+			//let Days = ((DaysToSimulate === undefined) ? 100 : DaysToSimulate);
+			let Days = 300
+
+			//let StartingIPercentage = ((StartingInfectionPercentage === undefined) ? 0.05 : StartingInfectionPercentage);
+			let StartingIPercentage = 0.00005
+
+			input = document.getElementById('StartingIPercentage_field').value
+			if (input!=""){
+				StartingIPercentage=(input/N);
+			}
+
+			let deathRate = 0.3
+
+			input = document.getElementById('deathRate_field').value
+			if (input!=""){
+				deathRate=input;
+			}
+
+			let S=N*(1-StartingIPercentage);
+			let I=StartingIPercentage*N;
+			let R=0;
+
+			let	Output = new Array(3);
+
+			let dailyS = new Array();
+			let dailyI = new Array();
+			let dailyR = new Array();
+			let deaths = new Array();
+			let totalInfections = new Array();
+
+			let categorias = new Array();
+
+			for (let i=0; i<Days; i++){
+				
+
+
+				let infectionProbability = beta*(I/N);
+				let recoveryProbability = gamma;
+
+				let STemp=S-(infectionProbability*S);
+				if (STemp<1){
+					STemp=0;
+				};
+				
+				let ITemp=I+(infectionProbability*S)-(recoveryProbability*I);
+				if (ITemp < 1){
+					ITemp = 0;
+				}
+
+				if(i>0){
+					totalInfections[i]=infectionProbability*S+totalInfections[i-1];
+				}else{
+					totalInfections[i]=infectionProbability*S;
+				}
+
+				let RTemp=R+(recoveryProbability*I);
+				if (RTemp<1){
+					RTemp=0;
+				}
+
+				
+				let DeathsTemp=R*deathRate
+
+
+				let	NTemp=S+R+I
+
+				
+				S=STemp;
+				dailyS[i]=STemp;
+				I=ITemp;
+				dailyI[i]=ITemp;
+				R=RTemp;
+				dailyR[i]=RTemp;
+				deaths[i]=DeathsTemp;
+				categorias[i]=i;
+
+				
+			}
+
+
+			let SIRoutput = [];
+			SIRoutput[0]=dailyS;
+			SIRoutput[1]=dailyI;
+			SIRoutput[2]=dailyR;
+			SIRoutput[3]=deaths;
+			SIRoutput[4]=totalInfections;
+			
+			//console.log(dailyI)
+			//console.log(categorias)
+
+
+			lineChartData = {}; //declare an object
+			lineChartData.labels = []; //add 'labels' element to object (X axis)
+			lineChartData.datasets = []; //add 'datasets' array element to object
+
+			for(let line = 0; line < 5; line++){
+
+			    lineChartData.datasets.push({}); //create a new line dataset
+		        
+		        dataset = lineChartData.datasets[line]
+				    	
+				switch(line) {
+					case 0: 
+						dataset.borderColor = "rgba(200,0,0,1)";
+						dataset.backgroundColor = "rgba(0, 0, 0, 0)";
+						dataset.label = "Susceptible"
+						dataset.pointBackgroundColor = "rgba(0, 0, 0, 0)";
+						dataset.pointBorderColor= "rgba(0, 0, 0, 0)";
+						break;
+					case 1:
+						dataset.borderColor = "rgba(0,200,0,1)";
+						dataset.backgroundColor = "rgba(0, 0, 0, 0)";
+						dataset.label = "Infected"
+						dataset.pointBackgroundColor = "rgba(0, 0, 0, 0)";
+						dataset.pointBorderColor= "rgba(0, 0, 0, 0)";
+						break;
+					case 2:
+						dataset.borderColor = "rgba(0,0,200,1)";
+						dataset.backgroundColor = "rgba(0, 0, 0, 0)";
+						dataset.label = "Removed"
+						dataset.pointBackgroundColor = "rgba(0, 0, 0, 0)";
+						dataset.pointBorderColor= "rgba(0, 0, 0, 0)";
+						break;
+					case 3:
+						dataset.borderColor = "rgba(0,0,0,1)";
+						dataset.backgroundColor = "rgba(0, 0, 0, 0)";
+						dataset.label = "Deaths"
+						dataset.pointBackgroundColor = "rgba(0, 0, 0, 0)";
+						dataset.pointBorderColor= "rgba(0, 0, 0, 0)";
+						break;
+					case 4:
+						dataset.borderColor = "rgba(200,200,200,1)";
+						dataset.backgroundColor = "rgba(0, 0, 0, 0)";
+						dataset.label = "Total Infections"
+						dataset.pointBackgroundColor = "rgba(0, 0, 0, 0)";
+						dataset.pointBorderColor= "rgba(0, 0, 0, 0)";
+						break;
+
+				}
+
+		    	dataset.data = SIRoutput[line];
+
+			}
+
+			lineChartData.labels = categorias;	
+
+			let ctx = document.getElementById('myChart');
+
+			myLineChart = new Chart(ctx, {
+				type: 'line',
+				data: lineChartData,
+			});
+
+
+			/*var myChart = new Chart(ctx, {
+				type: 'line',
+				data: {
+				    labels: categorias,
+				    datasets: [{
+				        label: '# of Votes',
+				        data: dailyI,
+				        borderWidth: 1
+				    }]
+		    	}
+			});*/
 		}
+	</script>
+</div>
 
-    	dataset.data = SIRoutput[line];
-
-	}
-
-	lineChartData.labels = categorias;	
-
-	let ctx = document.getElementById('myChart');
-
-	myLineChart = new Chart(ctx, {
-		type: 'line',
-		data: lineChartData,
-	});
-
-
-	/*var myChart = new Chart(ctx, {
-		type: 'line',
-		data: {
-		    labels: categorias,
-		    datasets: [{
-		        label: '# of Votes',
-		        data: dailyI,
-		        borderWidth: 1
-		    }]
-    	}
-	});*/
-</script>
 
 </body>
 </html>
