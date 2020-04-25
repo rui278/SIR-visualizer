@@ -11,7 +11,10 @@
 
 
 <p id="SIR"></p>
-<canvas id="myChart"></canvas>
+
+<div id="Chart_container">
+	<canvas id="myChart"></canvas>
+</div>
 
 
 <div>
@@ -49,6 +52,7 @@
 			
 		function doFunction(){
 			//let N = ((PopulationSize === undefined) ? 100 : PopulationSize);
+			
 			
 			let N=10000000
 			
@@ -105,7 +109,7 @@
 
 			for (let i=0; i<Days; i++){
 				
-
+				
 
 				let infectionProbability = beta*(I/N);
 				let recoveryProbability = gamma;
@@ -147,7 +151,10 @@
 				deaths[i]=DeathsTemp;
 				categorias[i]=i;
 
-				
+				if(ITemp<(StartingIPercentage*N/3)){
+					break;
+				}
+					
 			}
 
 
@@ -217,14 +224,24 @@
 
 			lineChartData.labels = categorias;	
 
-			let ctx = document.getElementById('myChart');
+			
+			//let myChart = new Chart(ctx);
 
-			myLineChart = new Chart(ctx, {
+			
+			document.getElementById('myChart').remove();
+			let canvas = document.createElement('canvas');
+			canvas.setAttribute('id','myChart');
+			document.getElementById('Chart_container').append(canvas);
+
+	
+			let ctx = document.getElementById('myChart');
+	
+			myChart = new Chart(ctx, {
 				type: 'line',
 				data: lineChartData,
 			});
 
-
+			
 			/*var myChart = new Chart(ctx, {
 				type: 'line',
 				data: {
